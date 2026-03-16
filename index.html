@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUEEN BURGERS | Taste the Royalty</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-crown"></i> QUEEN BURGERS
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <nav>
+            <ul class="nav-links" id="navLinks">
+                <li><button class="nav-btn active" onclick="router('home')">Home</button></li>
+                <li><button class="nav-btn" onclick="router('about')">About Us</button></li>
+                <li><button class="nav-btn" onclick="router('services')">Services</button></li>
+                <li><button class="nav-btn" onclick="router('menu')">Order Now</button></li>
+            </ul>
+        </nav>
+        <div class="cart-icon" onclick="openCart()">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-count" id="cartCount">0</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- 1. HOME PAGE -->
+        <section id="home" class="page-section active">
+            <div class="hero-content">
+                <div class="burger-anim-container">
+                    <img src="56389604_insanity-burger_6x4.webp" alt="Delicious Burger" class="burger-img">
+                </div>
+                <h1>Taste the Royalty</h1>
+                <p>Experience the juiciest burgers in town. Cozy ambiance, fair prices, and fit for a Queen.</p>
+                <button class="cta-btn" onclick="router('menu')">Order Now</button>
+                <button class="cta-btn" onclick="router('about')">About Us</button>
+            </div>
+
+            <div class="hero-highlights">
+                <div class="highlight-card">
+                    <i class="fa-solid fa-fire-burner"></i>
+                    <span></span>
+                </div>
+                <div class="highlight-card">
+                    <i class="fa-solid fa-motorcycle"></i>
+                    <span>Fast Delivery</span>
+                </div>
+                <div class="highlight-card">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>Fair Price</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. ABOUT PAGE -->
+        <section id="about" class="page-section">
+            <div class="about-container">
+                <div class="about-text">
+                    <h2>Our Story</h2>
+                    <p>Founded with a passion for flavor, <strong>QUEEN BURGERS</strong> started as a small kitchen experiment and grew into the town's favorite spot.</p>
+                    <p><strong>Our Mission:</strong> To serve high-quality, delicious meals made with love and fresh ingredients, treating every customer like royalty.</p>
+                    <p>We believe in community, flavor, and speed. Whether you are dining in or ordering via our app, we guarantee satisfaction.</p>
+                </div>
+                <div class="about-img">
+                    <img src="images (1).jpg" alt="Queen Burgers Interior">
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. SERVICES PAGE -->
+        <section id="services" class="page-section">
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <h2>Our Services</h2>
+                <p>How we serve our royalty.</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <i class="fa-solid fa-utensils"></i>
+                    <h3>Dine-In</h3>
+                    <p>Enjoy our cozy ambiance with free Wi-Fi and comfortable seating.</p>
+                </div>
+                <div class="service-card">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <h3>Takeaway</h3>
+                    <p>Order ahead and pick up your food hot and ready at the counter.</p>
+                </div>
+                <div class="service-card">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <h3>Fast Delivery</h3>
+                    <p>We deliver across the city within 30-45 minutes. Track your order live.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. MENU/ORDER PAGE -->
+        <section id="menu" class="page-section">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2>Our Menu</h2>
+                <p>Select your favorites and add to cart.</p>
+            </div>
+
+            <div class="menu-categories">
+                <button class="cat-btn active" onclick="filterMenu('all')">All</button>
+                <button class="cat-btn" onclick="filterMenu('burger')">Burgers</button>
+                <button class="cat-btn" onclick="filterMenu('sides')">Sides</button>
+                <button class="cat-btn" onclick="filterMenu('drinks')">Drinks</button>
+            </div>
+
+            <div class="menu-grid" id="menuGrid">
+                <!-- Menu items injected via JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- CART MODAL -->
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('cartModal')">&times;</span>
+            <h3>Your Cart</h3>
+            <div id="cartItemsContainer" style="margin-top: 15px; max-height: 300px; overflow-y: auto;">
+                <p style="text-align:center; color:#888;">Your cart is empty.</p>
+            </div>
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotalDisplay">ETB 0.00</span>
+            </div>
+            <button class="cta-btn" style="width: 100%; margin-top: 20px;" onclick="initiateCheckout()">Proceed to Pay</button>
+        </div>
+    </div>
+
+    <!-- PAYMENT & UPLOAD MODAL -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-content payment-step">
+            <span class="close-modal" onclick="closeModal('paymentModal')">&times;</span>
+            
+            <!-- Step 1: Payment Selection -->
+            <div id="paymentStep1">
+                <h3>Select Payment Method</h3>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Secure payment via local banking apps.</p>
+                
+                <div class="payment-option">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-mobile-screen-button" style="font-size: 1.5rem; color: #41A3F5;"></i>
+                        <span>Telebirr</span>
+                    </div>
+                    <input type="radio" name="payment" checked>
+                </div>
+                <div class="payment-option">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-building-columns" style="font-size: 1.5rem; color: #E63946;"></i>
+                        <span>CBE Birr</span>
+                    </div>
+                    <input type="radio" name="payment">
+                </div>
+
+                <p style="font-size: 0.8rem; color: #666; margin: 15px 0;">Total to Pay: <strong id="payAmount">ETB 0.00</strong></p>
+                
+                <button class="cta-btn" onclick="openBankApp()">Pay Now</button>
+            </div>
+
+            <!-- Step 2: Simulation / Upload -->
+            <div id="paymentStep2" style="display: none;">
+                <div id="loaderSection">
+                    <div class="spinner"></div>
+                    <p>Opening Banking App...</p>
+                    <p style="font-size: 0.8rem; color: #888;">(Please complete payment on your phone)</p>
+                </div>
+
+                <div id="uploadSection" style="display: none;">
+                    <h3>Upload Payment Proof</h3>
+                    <p style="font-size: 0.9rem; margin-bottom: 15px;">Please take a screenshot of your payment confirmation and upload it here.</p>
+                    
+                    <label class="upload-area">
+                        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: #aaa;"></i>
+                        <p>Click to select screenshot</p>
+                        <input type="file" id="screenshotInput" accept="image/*" style="display: none;" onchange="previewFile()">
+                    </label>
+                    
+                    <img id="screenshot-preview" alt="Preview">
+                    <p id="fileError" class="error-message"></p>
+
+                    <button class="cta-btn" onclick="submitOrder()">Confirm Order</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Success -->
+            <div id="paymentStep3" style="display: none;">
+                <i class="fa-solid fa-circle-check" style="font-size: 4rem; color: green; margin-bottom: 15px;"></i>
+                <h3>Order Received!</h3>
+                <p>Thank you, Your Majesty. We are preparing your delicious burger. Please wait a few minutes.</p>
+                <button class="cta-btn" style="margin-top: 20px;" onclick="resetAndClose()">Close</button>
+            </div>
+
+        </div>
+    </div>
+
+    <footer style="background: var(--dark-brown); color: white; text-align: center; padding: 1.5rem; margin-top: auto;">
+        <p>&copy; 2023 QUEEN BURGERS. All rights reserved.</p>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
