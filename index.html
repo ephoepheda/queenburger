@@ -211,6 +211,30 @@
         <p>&copy; 2023 QUEEN BURGERS. All rights reserved.</p>
     </footer>
 
+    <!-- Firebase SDK (Compat version for easier use) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+<script>
+  // Paste the config data you see in your Firebase Console here:
+  const firebaseConfig = {
+    apiKey: "AIzaSyCrWuCpYFnKyJ52g8f-64dKIsUnaLAQiT8",
+    authDomain: "queen-burger2.firebaseapp.com",
+    projectId: "queen-burger2",
+    storageBucket: "queen-burger2.firebasestorage.app",
+    messagingSenderId: "643801878047",
+    appId: "1:643801878047:web:f4d37c3d7c1391f8360f2a",
+    measurementId: "G-4NYDLBT7YF"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+</script>
+
+    
     <!-- Custom JavaScript -->
     <script src="script.js"></script>
 </body>
