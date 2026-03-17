@@ -191,84 +191,64 @@ function previewFile() {
     }
 }
 
-function submitOrder() {
-   
-    async function submitOrder() {
+async function submitOrder() {
     const input = document.getElementById('screenshotInput');
     const error = document.getElementById('fileError');
 
-    if (!input.files || input.files.length === 0) {
-        error.innerText = "Please upload a payment screenshot.";
+    // 1. Get File (Pasted or Selected)
+    let fileToUpload = pastedImage || (input.files ? input.files[0] : null);
+
+    if (!fileToUpload) {
+        error.innerText = "Please paste or select a screenshot.";
         return;
     }
 
     const submitBtn = document.querySelector('#uploadSection .cta-btn');
-    const originalText = submitBtn.innerText;
-    submitBtn.innerText = "Uploading & Verifying...";
+    submitBtn.innerText = "Uploading...";
     submitBtn.disabled = true;
-
-    // 1. Prepare Form Data for the file
-    const formData = new FormData();
-    formData.append('screenshot', input.files[0]);
-
-    // 2. Prepare JSON Data for the cart
-    const orderData = {
-        cart: cart,
-        total: cart.reduce((sum, item) => sum + (item.price * item.qty), 0),
-        paymentMethod: document.querySelector('input[name="payment"]:checked').parentElement.innerText.trim()
-    };
-
-    // Append JSON as a blob so we can send file + json together
-    formData.append('data', JSON.stringify(orderData));
 
     try {
-        // 3. Send to PHP
-        const response = await fetch('api/place_order.php', {
-            method: 'POST',
-            body: formData
+        // 2. Upload Image to Firebase Storage
+        // Create a unique filename: timestamp_filename.jpg
+        const fileName = Date.now() + '_' + fileToUpload.name;
+        const storageRef = storage.ref('proofs/' + fileName);
+        
+        await storageRef.put(fileToUpload);
+        const imageUrl = await storageRef.getDownloadURL(); // Get the link
+
+        // 3. Save Order Data to Firestore Database
+        const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        const paymentMethod = document.querySelector('input[name="payment"]:checked').parentElement.innerText.trim();
+
+        await db.collection('orders').add({
+            customerName: "Guest Customer",
+            totalAmount: total,
+            paymentMethod: paymentMethod,
+            proofImage: imageUrl, // Save the image link
+            status: "Pending",
+            items: cart, // Save the cart items
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        const result = await response.json();
-
-        if (result.success) {
-            // Success
-            document.getElementById('paymentStep2').style.display = 'none';
-            document.getElementById('paymentStep3').style.display = 'block';
-            cart = []; // Clear cart
-            updateCartUI();
-        } else {
-            error.innerText = "Error: " + result.message;
-            submitBtn.disabled = false;
-            submitBtn.innerText = originalText;
-        }
-
-    } catch (error) {
-        console.error('Error:', error);
-        error.innerText = "Connection failed. Please try again.";
-        submitBtn.disabled = false;
-        submitBtn.innerText = originalText;
-    }
-}
-
-    // Simulate server upload & verification
-    const submitBtn = document.querySelector('#uploadSection .cta-btn');
-    const originalText = submitBtn.innerText;
-    submitBtn.innerText = "Verifying...";
-    submitBtn.disabled = true;
-
-    setTimeout(() => {
-        // Success
+        // 4. Success
         document.getElementById('paymentStep2').style.display = 'none';
         document.getElementById('paymentStep3').style.display = 'block';
-        
-        // Clear cart
-        cart = [];
+        cart = []; // Clear cart
         updateCartUI();
         
-        submitBtn.innerText = originalText;
+        // Reset paste variable
+        pastedImage = null;
+        document.getElementById('screenshot-preview').style.display = 'none';
+
+    } catch (err) {
+        console.error("Error:", err);
+        error.innerText = "Upload failed: " + err.message;
+    } finally {
+        submitBtn.innerText = "Confirm Order";
         submitBtn.disabled = false;
-    }, 2000);
+    }
 }
+   
 
 function resetAndClose() {
     closeModal('paymentModal');
