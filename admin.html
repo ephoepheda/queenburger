@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Queen Burgers</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { color: #E63946; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #333; color: white; }
+        .proof-img { width: 60px; height: 60px; object-fit: cover; cursor: pointer; border-radius: 5px; }
+        .status-pending { color: orange; font-weight: bold; }
+        .btn { padding: 5px 10px; text-decoration: none; color: white; border-radius: 3px; font-size: 0.8rem; cursor: pointer; border:none; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Queen Burgers Admin</h2>
+        <button onclick="loadOrders()" style="padding: 10px; cursor: pointer;">Refresh Orders</button>
+        
+        <table id="ordersTable">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Proof</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="ordersBody">
+                <!-- Orders will appear here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+      // PASTE YOUR FIREBASE CONFIG HERE!
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "queen-burger2.firebaseapp.com",
+        projectId: "queen-burger2",
+        storageBucket: "queen-burger2.firebasestorage.app",
+        messagingSenderId: "...",
+        appId: "..."
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      // Load Orders Function
+      async function loadOrders() {
+          const tableBody = document.getElementById('ordersBody');
+          tableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+
+          try {
+              // Get orders from Firestore, sorted by newest
+              const snapshot = await db.collection('orders').orderBy('timestamp', 'desc').get();
+              
+              tableBody.innerHTML = ''; // Clear loading text
+
+              if (snapshot.empty) {
+                  tableBody.innerHTML = '<tr><td colspan="6">No orders found.</td></tr>';
+                  return;
+              }
+
+              snapshot.forEach(doc => {
+                  const data = doc.data();
+                  const row = document.createElement('tr');
+
+                  // Format items string
+                  let itemsHtml = data.items.map(i => `${i.qty}x ${i.name}`).join(', ');
+
+                  row.innerHTML = `
+                      <td>${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleTimeString() : 'N/A'}</td>
+                      <td>${itemsHtml}</td>
+                      <td>ETB ${data.totalAmount}</td>
+                      <td><a href="${data.proofImage}" target="_blank"><img src="${data.proofImage}" class="proof-img"></a></td>
+                      <td class="${data.status === 'Pending' ? 'status-pending' : ''}">${data.status}</td>
+                      <td>
+                          ${data.status === 'Pending' 
+                            ? `<button class="btn btn-success" onclick="markCompleted('${doc.id}')">Mark Paid</button>` 
+                            : '<span style="color:green;">&#10003;</span>'}
+                      </td>
+                  `;
+                  tableBody.appendChild(row);
+              });
+
+          } catch (error) {
+              console.error("Error fetching orders:", error);
+              alert("Error loading orders. Check console.");
+          }
+      }
+
+      // Mark as Completed
+      async function markCompleted(docId) {
+          if(confirm("Are you sure you received the money?")) {
+              await db.collection('orders').doc(docId).update({
+                  status: 'Completed'
+              });
+              loadOrders(); // Refresh list
+          }
+      }
+
+      // Load on start
+      loadOrders();
+    </script>
+</body>
+</html>
