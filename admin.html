@@ -74,18 +74,26 @@
                   return;
               }
 
-              snapshot.forEach(doc => {
+                snapshot.forEach(doc => {
                   const data = doc.data();
                   const row = document.createElement('tr');
 
                   // Format items string
                   let itemsHtml = data.items.map(i => `${i.qty}x ${i.name}`).join(', ');
 
+                  // Check if it's an ID or an Image (in case you have old orders)
+                  let proofDisplay = '';
+                  if (data.proofType === "Transaction ID") {
+                      proofDisplay = `<strong>${data.proofId || 'N/A'}</strong>`;
+                  } else {
+                      proofDisplay = `<a href="${data.proofImage}" target="_blank"><img src="${data.proofImage}" class="proof-img"></a>`;
+                  }
+
                   row.innerHTML = `
                       <td>${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleTimeString() : 'N/A'}</td>
                       <td>${itemsHtml}</td>
                       <td>ETB ${data.totalAmount}</td>
-                      <td><a href="${data.proofImage}" target="_blank"><img src="${data.proofImage}" class="proof-img"></a></td>
+                      <td>${proofDisplay}</td>
                       <td class="${data.status === 'Pending' ? 'status-pending' : ''}">${data.status}</td>
                       <td>
                           ${data.status === 'Pending' 
