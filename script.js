@@ -175,46 +175,26 @@ function openBankApp() {
     }, 3000);
 }
 
-function previewFile() {
-    const input = document.getElementById('screenshotInput');
-    const preview = document.getElementById('screenshot-preview');
-    const error = document.getElementById('fileError');
-
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-            error.innerText = '';
-        }
-        reader.readAsDataURL(input.files[0]);
-    }
 }
 
 async function submitOrder() {
-    const input = document.getElementById('screenshotInput');
-    const error = document.getElementById('fileError');
+    const input = document.getElementById('transactionId'); // Look for the text input
+    const error = document.getElementById('idError');
 
-    // 1. Get File (Pasted or Selected)
-    let fileToUpload = pastedImage || (input.files ? input.files[0] : null);
+    // 1. Get the Text ID
+    let transactionId = input.value.trim();
 
-    if (!fileToUpload) {
-        error.innerText = "Please paste or select a screenshot.";
+    if (!transactionId) {
+        error.innerText = "Please enter your Transaction ID.";
         return;
     }
 
     const submitBtn = document.querySelector('#uploadSection .cta-btn');
-    submitBtn.innerText = "Uploading...";
+    submitBtn.innerText = "Placing Order...";
     submitBtn.disabled = true;
 
     try {
-        // 2. Upload Image to Firebase Storage
-        // Create a unique filename: timestamp_filename.jpg
-        const fileName = Date.now() + '_' + fileToUpload.name;
-        const storageRef = storage.ref('proofs/' + fileName);
-        
-        await storageRef.put(fileToUpload);
-        const imageUrl = await storageRef.getDownloadURL(); // Get the link
+        // 2. No Image Upload needed! We skip straight to saving data.
 
         // 3. Save Order Data to Firestore Database
         const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -224,9 +204,10 @@ async function submitOrder() {
             customerName: "Guest Customer",
             totalAmount: total,
             paymentMethod: paymentMethod,
-            proofImage: imageUrl, // Save the image link
+            proofType: "Transaction ID", // New field
+            proofId: transactionId,      // Save the ID instead of image URL
             status: "Pending",
-            items: cart, // Save the cart items
+            items: cart,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -236,19 +217,17 @@ async function submitOrder() {
         cart = []; // Clear cart
         updateCartUI();
         
-        // Reset paste variable
-        pastedImage = null;
-        document.getElementById('screenshot-preview').style.display = 'none';
+        // Reset the input
+        input.value = '';
 
     } catch (err) {
         console.error("Error:", err);
-        error.innerText = "Upload failed: " + err.message;
+        error.innerText = "Order failed: " + err.message;
     } finally {
         submitBtn.innerText = "Confirm Order";
         submitBtn.disabled = false;
     }
 }
-   
 
 function resetAndClose() {
     closeModal('paymentModal');
