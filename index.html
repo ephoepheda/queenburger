@@ -179,21 +179,16 @@
                     <p style="font-size: 0.8rem; color: #888;">(Please complete payment on your phone)</p>
                 </div>
 
-                <div id="uploadSection" style="display: none;">
-                    <h3>Upload Payment Proof</h3>
-                    <p style="font-size: 0.9rem; margin-bottom: 15px;">Please take a screenshot of your payment confirmation and upload it here.</p>
-                    
-                    <label class="upload-area">
-                        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: #aaa;"></i>
-                        <p>Click to select screenshot</p>
-                        <input type="file" id="screenshotInput" accept="image/*" style="display: none;" onchange="previewFile()">
-                    </label>
-                    
-                    <img id="screenshot-preview" alt="Preview">
-                    <p id="fileError" class="error-message"></p>
+               <div id="uploadSection" style="display: none;">
+    <h3>Confirm Payment</h3>
+    <p style="font-size: 0.9rem; margin-bottom: 15px;">Please enter the Transaction ID from your banking app (e.g. TXN-88392).</p>
+    
+    <input type="text" id="transactionId" placeholder="Paste Transaction ID here..." style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; margin-bottom: 10px;">
+    
+    <p id="idError" class="error-message"></p>
 
-                    <button class="cta-btn" onclick="submitOrder()">Confirm Order</button>
-                </div>
+    <button class="cta-btn" onclick="submitOrder()">Confirm Order</button>
+</div>
             </div>
 
             <!-- Step 3: Success -->
